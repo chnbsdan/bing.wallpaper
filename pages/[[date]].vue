@@ -23,7 +23,7 @@ useHead({
     lang: market.value.lang,
   },
   link: [
-    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.ico' },
     { rel: 'canonical', href: `${requestUrl.toString()}` },
   ],
   meta: [
