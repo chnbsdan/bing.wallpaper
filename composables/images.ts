@@ -11,7 +11,6 @@ const searchKeyword = ref('')
 
 function setSearchKeyword(keyword: string) {
   searchKeyword.value = keyword.trim().toLowerCase()
-  // 重置并重新加载
   state.imageMap = new Map()
   state.hasMore = true
   state.isFetching = false
@@ -22,14 +21,15 @@ async function loadImages(query: { idx: number, count: number }) {
   if (state.isFetching || !state.hasMore) return
 
   state.isFetching = true
-  const { mkt } = useMarket()
   try {
+    // ★★★ 在函数内部获取 mkt，而不是在顶层 ★★★
+    const { mkt } = useMarket()
     const images = await $fetch('/api/images', {
       query: {
         idx: query.idx,
         count: query.count,
         mkt: mkt.value,
-        keyword: searchKeyword.value, // ★★★ 传递搜索关键词
+        keyword: searchKeyword.value,
       }
     })
     state.isFetching = false
@@ -51,17 +51,15 @@ function resetImages() {
 
 async function getImageByKey(date: string, mkt: string) {
   if (!date) return null
-
   if (state.imageMap.has(date)) {
     return state.imageMap.get(date)!
-  } else {
-    try {
-      const image = await $fetch('/api/image', { query: { date, mkt } })
-      state.imageMap.set(date, image)
-      return image
-    } catch {
-      return null
-    }
+  }
+  try {
+    const image = await $fetch('/api/image', { query: { date, mkt } })
+    state.imageMap.set(date, image)
+    return image
+  } catch {
+    return null
   }
 }
 
@@ -71,7 +69,7 @@ export function useImages() {
     loadImages,
     resetImages,
     getImageByKey,
-    setSearchKeyword, // ★★★ 导出搜索函数
-    searchKeyword,
+    setSearchKeyword,
+    searchKeyword: readonly(searchKeyword),
   }
 }
