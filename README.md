@@ -50,6 +50,8 @@ https://bing.api.hangdn.com/api/image.random?mkt=ja-JP
 
 /api/random?mkt=zh-CN&redirect=true，	重定向到随机壁纸图片 
 
+api/daily?mkt=zh-CN&redirect=true，重定向今日壁纸图片
+
 
 ### 核心能力
 
