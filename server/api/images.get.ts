@@ -11,15 +11,12 @@ interface ImagesQuery {
 // ★★★ 从 archive 加载所有数据 ★★★
 function loadAllImagesFromArchive(mkt: string) {
   const allImages: any[] = []
-  // ★★★ 关键修复：保持原始大小写，不要 toLowerCase ★★★
-  const langDir = mkt // 直接使用传入的 mkt，如 'zh-CN'
+  // ★★★ 关键修复：直接使用传入的 mkt，不做大小写转换 ★★★
+  const langDir = mkt
   const archivePath = join(process.cwd(), 'archive', langDir)
-
-  console.log('📂 读取路径:', archivePath)
 
   try {
     const files = readdirSync(archivePath).filter(f => f.endsWith('.json'))
-    console.log('📄 找到文件:', files)
 
     for (const file of files) {
       const filePath = join(archivePath, file)
@@ -27,7 +24,6 @@ function loadAllImagesFromArchive(mkt: string) {
         const content = readFileSync(filePath, 'utf-8')
         const data = JSON.parse(content)
 
-        // data 格式: { "20260809": {...}, "20260808": {...} }
         for (const [date, info] of Object.entries(data)) {
           const item = info as any
           allImages.push({
@@ -47,7 +43,6 @@ function loadAllImagesFromArchive(mkt: string) {
   }
 
   allImages.sort((a, b) => b.date.localeCompare(a.date))
-  console.log('✅ 加载了', allImages.length, '张壁纸')
   return allImages
 }
 
@@ -55,12 +50,11 @@ function loadAllImagesFromArchive(mkt: string) {
 const cache: Record<string, any[]> = {}
 
 function getCachedImages(mkt: string) {
-  // ★★★ 保持原始大小写作为缓存 key ★★★
-  const key = mkt
-  if (!cache[key]) {
-    cache[key] = loadAllImagesFromArchive(mkt)
+  // ★★★ 直接用 mkt 作为缓存 key ★★★
+  if (!cache[mkt]) {
+    cache[mkt] = loadAllImagesFromArchive(mkt)
   }
-  return cache[key]
+  return cache[mkt]
 }
 
 export default defineEventHandler(async (event) => {
@@ -69,11 +63,9 @@ export default defineEventHandler(async (event) => {
 
     const idx = Number(query.idx) || 0
     const count = Number(query.count) || 30
-    // ★★★ 保持原始大小写 ★★★
+    // ★★★ 默认值改为 'zh-CN'（与目录名一致）★★★
     const mkt = (query.mkt as string) || 'zh-CN'
     const keyword = (query.keyword || '').trim().toLowerCase()
-
-    console.log('📥 API 请求:', { mkt, idx, count, keyword })
 
     let allImages = getCachedImages(mkt)
 
@@ -86,10 +78,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const pageData = allImages.slice(idx, idx + count)
-    console.log('📤 返回数据:', pageData.length, '条')
     return pageData
   } catch (e) {
-    console.error('❌ API 错误:', e)
+    console.error('API 错误:', e)
     return []
   }
 })
