@@ -13,38 +13,51 @@ const previewDate = computed(() => {
   const date = Array.isArray(route.params.date)
     ? route.params.date[0]
     : route.params.date
+
   return regex.test(date) ? date : null
 })
 
 const previewDatePrev = computed(() => {
-  if (!previewDate.value) return ''
+  if (!previewDate.value)
+    return ''
+
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() - 1))
-  if (d < new Date('2016-03-05')) return ''
+
+  if (d < new Date('2016-03-05'))
+    return ''
+
   return formatDate(d, 'YYYY-MM-DD')
 })
 
 const previewDateNext = computed(() => {
-  if (!previewDate.value) return ''
+  if (!previewDate.value)
+    return ''
+
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() + 1))
-  if (d > new Date()) return ''
+
+  if (d > new Date())
+    return ''
+
   return formatDate(d, 'YYYY-MM-DD')
 })
 
 watch(() => previewDate.value, async (date) => {
-  if (date) {
+  if (date)
     await getPreviewImage(date)
-    resetZoom()
-  } else {
+  else
     previewImage.value = null
-  }
 }, { immediate: true })
 
 const previewUrl = computed(() => {
-  if (!previewImage.value) return ''
+  if (!previewImage.value)
+    return ''
   const { url } = previewImage.value
-  if (!url.includes('/th?id=')) return url
+
+  if (!url.includes('/th?id='))
+    return url
+
   return isMobile.value
     ? url.replace('1920x1080', '768x1280')
     : url
@@ -57,7 +70,8 @@ function toggleImageMetaVisible() {
 }
 
 const downloads = computed(() => {
-  if (!previewImage.value) return []
+  if (!previewImage.value)
+    return []
   const { url, date } = previewImage.value
   const filename = `bing-${date}-1920x1080.jpg`
   if (url.includes('/th?id=')) {
@@ -105,84 +119,6 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.disabled = false
   button.removeAttribute('aria-busy')
 }
-
-// ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-// ★★★ 缩放 + 拖拽 ★★★
-// ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-const scale = ref(1)
-const minScale = 0.5
-const maxScale = 4
-const translateX = ref(0)
-const translateY = ref(0)
-
-const isDragging = ref(false)
-const dragStartX = ref(0)
-const dragStartY = ref(0)
-const dragStartTranslateX = ref(0)
-const dragStartTranslateY = ref(0)
-
-function resetZoom() {
-  scale.value = 1
-  translateX.value = 0
-  translateY.value = 0
-}
-
-function handleWheel(e: WheelEvent) {
-  e.preventDefault()
-  const delta = e.deltaY > 0 ? -0.1 : 0.1
-  const newScale = Math.min(maxScale, Math.max(minScale, scale.value + delta))
-  scale.value = newScale
-  if (scale.value === 1) {
-    translateX.value = 0
-    translateY.value = 0
-  }
-}
-
-function startDrag(e: MouseEvent | TouchEvent) {
-  if (scale.value <= 1) return
-  isDragging.value = true
-  const pos = 'touches' in e ? e.touches[0] : e
-  dragStartX.value = pos.clientX
-  dragStartY.value = pos.clientY
-  dragStartTranslateX.value = translateX.value
-  dragStartTranslateY.value = translateY.value
-}
-
-function moveDrag(e: MouseEvent | TouchEvent) {
-  if (!isDragging.value) return
-  e.preventDefault()
-  const pos = 'touches' in e ? e.touches[0] : e
-  translateX.value = dragStartTranslateX.value + (pos.clientX - dragStartX.value)
-  translateY.value = dragStartTranslateY.value + (pos.clientY - dragStartY.value)
-}
-
-function endDrag() {
-  isDragging.value = false
-}
-
-function doubleClickReset(e: MouseEvent) {
-  e.stopPropagation()
-  resetZoom()
-}
-
-// 键盘快捷键 + - R
-useEventListener('keydown', (e) => {
-  if (!previewDate.value) return
-  if (e.key === '=' || e.key === '+') {
-    e.preventDefault()
-    scale.value = Math.min(maxScale, scale.value + 0.2)
-  } else if (e.key === '-') {
-    e.preventDefault()
-    scale.value = Math.max(minScale, scale.value - 0.2)
-    if (scale.value === minScale) {
-      translateX.value = 0
-      translateY.value = 0
-    }
-  } else if (e.key === 'r' || e.key === 'R') {
-    e.preventDefault()
-    resetZoom()
-  }
-})
 </script>
 
 <template>
@@ -226,38 +162,7 @@ useEventListener('keydown', (e) => {
       </template>
 
       <template v-else-if="previewImage">
-        <!-- ★★★ 图片容器：支持缩放拖拽 ★★★ -->
-        <div
-          class="h-full w-full overflow-hidden"
-          @wheel="handleWheel"
-          @mousedown="startDrag"
-          @mousemove="moveDrag"
-          @mouseup="endDrag"
-          @mouseleave="endDrag"
-          @touchstart="startDrag"
-          @touchmove="moveDrag"
-          @touchend="endDrag"
-          @dblclick="doubleClickReset"
-        >
-          <ui-image
-            :src="previewUrl"
-            :alt="previewImage.title"
-            class="h-full w-full object-contain transition-none"
-            :style="{
-              transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
-              cursor: scale > 1 ? 'grab' : 'default',
-            }"
-          />
-        </div>
-
-        <!-- ★★★ 缩放指示器 ★★★ -->
-        <div
-          v-if="scale !== 1"
-          class="absolute bottom-24 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white/70 backdrop-blur"
-        >
-          {{ Math.round(scale * 100) }}% · 滚轮缩放 · 拖拽平移 · 双击重置
-        </div>
-
+        <ui-image :src="previewUrl" :alt="previewImage.title" />
         <div
           class="absolute inset-x-0 z-1 z-2 transition-all"
           :class="imageMetaVisible ? 'bottom-0' : 'bottom--100%'"
