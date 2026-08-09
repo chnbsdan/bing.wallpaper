@@ -18,6 +18,31 @@ function scrollTo({ x = 0, y = 0 }: { x?: number, y?: number } = {}) {
 const requestUrl = useRequestURL()
 const { market } = useMarket()
 
+// ★★★ 搜索功能 ★★★
+const { setSearchKeyword } = useImages()
+const searchKeyword = ref('')
+const searchInputRef = ref<HTMLInputElement>()
+
+function handleSearch() {
+  setSearchKeyword(searchKeyword.value)
+}
+
+function clearSearch() {
+  searchKeyword.value = ''
+  setSearchKeyword('')
+  searchInputRef.value?.focus()
+}
+
+useEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault()
+    searchInputRef.value?.focus()
+  }
+  if (e.key === 'Escape' && searchKeyword.value) {
+    clearSearch()
+  }
+})
+
 useHead({
   htmlAttrs: {
     lang: market.value.lang,
@@ -60,6 +85,25 @@ useCustomSeoMeta({
 
         <div class="ml-auto" />
 
+        <!-- ★★★ 搜索框 ★★★ -->
+        <div class="relative mx-2 max-w-[160px] flex-1">
+          <input
+            ref="searchInputRef"
+            v-model="searchKeyword"
+            type="text"
+            placeholder="搜索 (⌘K)"
+            class="w-full rounded-full border-1 border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80 outline-none transition-all placeholder:text-white/30 focus:border-rose-600/50 focus:ring-1 focus:ring-rose-600/50"
+            @input="handleSearch"
+          />
+          <button
+            v-if="searchKeyword"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/80"
+            @click="clearSearch"
+          >
+            <div class="i-system-uicons-cross h-3 w-3" />
+          </button>
+        </div>
+
         <button
           v-show="isBackTopVisible" class="rounded-full p-2 text-2xl hover:bg-black:10"
           @click="() => scrollTo({ y: 0 })"
@@ -80,7 +124,7 @@ useCustomSeoMeta({
     <image-preview />
 
     <footer class="py-4 text-center bg-base">
-      <span class="text-xs op-50">© {{ new Date().getFullYear() }} · 由小史先生维护 | All pictures on this site are from Bing
+      <span class="text-xs op-50">© {{ new Date().getFullYear() }} ·由小史先生提供维护 |  All pictures on this site are from Bing
         search</span>
     </footer>
   </div>
