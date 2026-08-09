@@ -1,0 +1,42 @@
+name: Sync Archive from Upstream
+
+on:
+  schedule:
+    # 每天北京时间 10:00 和 22:00 运行
+    - cron: '0 2,14 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  sync-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download upstream archive folder
+        run: |
+          # 用 sparse checkout 只拉取 archive 目录
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/chnbsdan/bing.wallpaper-json.git upstream
+          cd upstream
+          git sparse-checkout set archive
+          
+          # 复制 archive 内容到当前仓库（覆盖）
+          cp -rf archive/* ../archive/ || true
+          cd ..
+          rm -rf upstream
+
+      - name: Commit and push changes
+        env:
+          USER_NAME: ${{ vars.USER_NAME }}
+          USER_EMAIL: ${{ vars.USER_EMAIL }}
+        run: |
+          git config user.name "$USER_NAME"
+          git config user.email "$USER_EMAIL"
+          git add ./archive
+          git diff --staged --quiet || git commit -m "sync archive from upstream $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git push
