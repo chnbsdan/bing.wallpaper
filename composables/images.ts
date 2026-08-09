@@ -6,7 +6,6 @@ const state = reactive({
   imageMap: new Map<string, BingImageMeta>(),
 })
 
-// ★★★ 搜索关键词 ★★★
 const searchKeyword = ref('')
 
 function setSearchKeyword(keyword: string) {
@@ -22,19 +21,25 @@ async function loadImages(query: { idx: number, count: number }) {
 
   state.isFetching = true
   try {
-    // ★★★ 在函数内部获取 mkt，而不是在顶层 ★★★
-    const { mkt } = useMarket()
-    const images = await $fetch('/api/images', {
-      query: {
-        idx: query.idx,
-        count: query.count,
-        mkt: mkt.value,
-        keyword: searchKeyword.value,
-      }
-    })
-    state.isFetching = false
-    state.hasMore = images.length >= query.count - 2
-    images.forEach((image: BingImageMeta) => state.imageMap.set(image.date, image))
+    // ★★★ 在客户端才执行 ★★★
+    if (process.client) {
+      const { mkt } = useMarket()
+      const images = await $fetch('/api/images', {
+        query: {
+          idx: query.idx,
+          count: query.count,
+          mkt: mkt.value,
+          keyword: searchKeyword.value,
+        }
+      })
+      state.isFetching = false
+      state.hasMore = images.length >= query.count - 2
+      images.forEach((image: BingImageMeta) => state.imageMap.set(image.date, image))
+    } else {
+      // 服务端返回空数据，客户端会重新加载
+      state.isFetching = false
+      state.hasMore = true
+    }
   } catch (e) {
     state.isFetching = false
     state.hasMore = false
