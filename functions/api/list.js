@@ -5,35 +5,29 @@ export async function onRequest(context) {
 
   const page = parseInt(url.searchParams.get('page')) || 1;
   const pageSize = parseInt(url.searchParams.get('size')) || 30;
+  const mkt = url.searchParams.get('mkt') || 'zh-CN';
 
   if (page < 1) {
-    return new Response(JSON.stringify({
-      error: 'page 参数必须大于等于 1'
-    }), {
+    return new Response(JSON.stringify({ error: 'page 必须 >= 1' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 
   if (pageSize < 1 || pageSize > 100) {
-    return new Response(JSON.stringify({
-      error: 'size 参数必须在 1-100 之间'
-    }), {
+    return new Response(JSON.stringify({ error: 'size 必须在 1-100 之间' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 
   try {
-    const host = url.origin;
-    // ★★★ 读取 bing-wallpaper2 的 data.json ★★★
-    // 改成从你的 Vercel API 读取
-const apiUrl = `https://bing.api.hangdn.com/api/images?mkt=zh-CN&idx=0&count=9999`;
-const resp = await fetch(apiUrl);
-       if (!resp.ok) {
-      return new Response(JSON.stringify({
-        error: '无法加载壁纸数据'
-      }), {
+    // ★★★ 从 Vercel API 获取数据 ★★★
+    const apiUrl = `https://bing.api.hangdn.com/api/images?mkt=${mkt}&idx=0&count=9999`;
+    const resp = await fetch(apiUrl);
+    
+    if (!resp.ok) {
+      return new Response(JSON.stringify({ error: '无法加载壁纸数据' }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -41,16 +35,14 @@ const resp = await fetch(apiUrl);
 
     let data = await resp.json();
     if (!Array.isArray(data) || data.length === 0) {
-      return new Response(JSON.stringify({
-        error: '暂无壁纸数据'
-      }), {
+      return new Response(JSON.stringify({ error: '暂无壁纸数据' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // ★★★ 按 startdate 降序排序 ★★★
-    data.sort((a, b) => b.startdate.localeCompare(a.startdate));
+    // 按日期降序排序
+    data.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
     const total = data.length;
     const totalPages = Math.ceil(total / pageSize);
@@ -59,23 +51,16 @@ const resp = await fetch(apiUrl);
     const end = Math.min(start + pageSize, total);
     const items = data.slice(start, end);
 
-    const baseUrl = 'https://www.bing.com';
-    const formattedItems = items.map(item => ({
-      date: item.startdate,
-      copyright: item.copyright || '',
-      title: item.title || '',
-      url: `${baseUrl}${item.urlbase}_UHD.jpg`
-    }));
-
     return new Response(JSON.stringify({
       code: 0,
       data: {
-        items: formattedItems,
+        items: items,
         page: currentPage,
         pageSize: pageSize,
         total: total,
         totalPages: totalPages,
-        hasMore: currentPage < totalPages
+        hasMore: currentPage < totalPages,
+        lang: mkt
       }
     }), {
       headers: {
