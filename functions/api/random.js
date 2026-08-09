@@ -6,8 +6,8 @@ export async function onRequest(context) {
   const mkt = url.searchParams.get('mkt') || 'zh-CN';
 
   try {
-    // ★★★ 从你的 Vercel API 获取随机壁纸数据 ★★★
-    const apiUrl = `https://bing.api.hangdn.com/api/images?mkt=${mkt}&random=true`;
+    // ★★★ 改为调用你自己的 Cloudflare Pages API ★★★
+    const apiUrl = `https://bing-wallpaper-c46.pages.dev/api/images?mkt=${mkt}&random=true`;
     const resp = await fetch(apiUrl);
     
     if (!resp.ok) {
