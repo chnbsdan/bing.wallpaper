@@ -4,7 +4,7 @@ on:
   schedule:
     # 每天北京时间 10:00 和 22:00 运行
     - cron: '0 2,14 * * *'
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,24 +13,23 @@ jobs:
   sync-archive:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download upstream archive folder
+      - name: Sync archive from jsonleex/bing.wallpaper
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 用 sparse checkout 只拉取 archive 目录
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/chnbsdan/bing.wallpaper-json.git upstream
+          git clone --depth 1 --filter=blob:none --sparse https://oauth2:${GITHUB_TOKEN}@github.com/jsonleex/bing.wallpaper.git upstream
           cd upstream
           git sparse-checkout set archive
-          
-          # 复制 archive 内容到当前仓库（覆盖）
           cp -rf archive/* ../archive/ || true
           cd ..
           rm -rf upstream
 
-      - name: Commit and push changes
+      - name: Commit changes
         env:
           USER_NAME: ${{ vars.USER_NAME }}
           USER_EMAIL: ${{ vars.USER_EMAIL }}
@@ -38,5 +37,5 @@ jobs:
           git config user.name "$USER_NAME"
           git config user.email "$USER_EMAIL"
           git add ./archive
-          git diff --staged --quiet || git commit -m "sync archive from upstream $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git diff --staged --quiet || git commit -m "sync archive from jsonleex/bing.wallpaper $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git push
