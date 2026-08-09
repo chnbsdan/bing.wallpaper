@@ -18,49 +18,6 @@ function scrollTo({ x = 0, y = 0 }: { x?: number, y?: number } = {}) {
 const requestUrl = useRequestURL()
 const { market } = useMarket()
 
-// ★★★ 搜索功能 ★★★
-const { setSearchKeyword } = useImages()
-const searchKeyword = ref('')
-const searchInputRef = ref<HTMLInputElement>()
-
-function handleSearch() {
-  setSearchKeyword(searchKeyword.value)
-}
-
-function clearSearch() {
-  searchKeyword.value = ''
-  setSearchKeyword('')
-  searchInputRef.value?.focus()
-}
-
-// ★★★ 客户端挂载后才执行键盘监听 ★★★
-let keyboardHandler: ((e: KeyboardEvent) => void) | null = null
-
-onMounted(() => {
-  keyboardHandler = (e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault()
-      searchInputRef.value?.focus()
-    }
-    if (e.key === 'Escape' && searchKeyword.value) {
-      clearSearch()
-    }
-  }
-  document.addEventListener('keydown', keyboardHandler)
-})
-
-onUnmounted(() => {
-  if (keyboardHandler) {
-    document.removeEventListener('keydown', keyboardHandler)
-  }
-})
-
-// ★★★ 标记是否已挂载 ★★★
-const isMounted = ref(false)
-onMounted(() => {
-  isMounted.value = true
-})
-
 useHead({
   htmlAttrs: {
     lang: market.value.lang,
@@ -87,86 +44,44 @@ useCustomSeoMeta({
 </script>
 
 <template>
-  <!-- ★★★ 使用 ClientOnly + 挂载后渲染 ★★★ -->
-  <ClientOnly>
-    <div v-if="isMounted" class="min-h-screen flex flex-col gap-1 md:gap-2">
-      <header class="sticky top-0 z-10 mx-1 border-b-1 rounded-b px-4 py-2 shadow backdrop-blur md:mx-4 bg-base">
-        <div class="flex items-center">
-          <div class="i-logos-bing mt--1 text-2xl" />
-          <div class="mx-1 flex items-center">
-            <h1 class="font-bold">
-              {{ market.title }}
-            </h1>
-            <span class="mx-1 hidden sm:inline">-</span>
-            <span class="hidden sm:inline">{{ market.description }}</span>
-          </div>
-
-          <market-select />
-
-          <div class="ml-auto" />
-
-          <!-- ★★★ 搜索框 ★★★ -->
-          <div class="relative mx-2 max-w-[160px] flex-1">
-            <input
-              ref="searchInputRef"
-              v-model="searchKeyword"
-              type="text"
-              placeholder="搜索 (⌘K)"
-              class="w-full rounded-full border-1 border-white/10 bg-black/20 px-3 py-1 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-rose-600/50 focus:ring-1 focus:ring-rose-600/50"
-              @input="handleSearch"
-            />
-            <button
-              v-if="searchKeyword"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/80"
-              @click="clearSearch"
-            >
-              <div class="i-system-uicons-cross h-3 w-3" />
-            </button>
-          </div>
-
-          <button
-            v-show="isBackTopVisible" class="rounded-full p-2 text-2xl hover:bg-black:10"
-            @click="() => scrollTo({ y: 0 })"
-          >
-            <div class="i-system-uicons-arrow-up-circle m--2px text-28px" />
-          </button>
-
-          <div class="rounded-full p-2 text-2xl hover:bg-black:10">
-            <nuxt-link
-              class="i-logos-github-icon?mask block text-inherit" target="_blank"
-              to="https://github.com/chnbsdan/bing.wallpaper"
-            />
-          </div>
+  <div class="min-h-screen flex flex-col gap-1 md:gap-2">
+    <header class="sticky top-0 z-10 mx-1 border-b-1 rounded-b px-4 py-2 shadow backdrop-blur md:mx-4 bg-base">
+      <div class="flex items-center">
+        <div class="i-logos-bing mt--1 text-2xl" />
+        <div class="mx-1 flex items-center">
+          <h1 class="font-bold">
+            {{ market.title }}
+          </h1>
+          <span class="mx-1 hidden sm:inline">-</span>
+          <span class="hidden sm:inline">{{ market.description }}</span>
         </div>
-      </header>
 
-      <image-grid />
-      <image-preview />
+        <market-select />
 
-      <footer class="py-4 text-center bg-base">
-        <span class="text-xs op-50">© {{ new Date().getFullYear() }} · All pictures on this site are from Bing
-          search</span>
-      </footer>
-    </div>
-    <!-- ★★★ 服务端渲染占位 ★★★ -->
-    <template #fallback>
-      <div class="min-h-screen flex flex-col gap-1 md:gap-2">
-        <header class="sticky top-0 z-10 mx-1 border-b-1 rounded-b px-4 py-2 shadow backdrop-blur md:mx-4 bg-base">
-          <div class="flex items-center">
-            <div class="i-logos-bing mt--1 text-2xl" />
-            <div class="mx-1 flex items-center">
-              <h1 class="font-bold">必应壁纸</h1>
-            </div>
-            <div class="ml-auto" />
-          </div>
-        </header>
-        <div class="flex-1 flex items-center justify-center">
-          <span class="i-system-uicons-loader animate-spin text-3xl" />
+        <div class="ml-auto" />
+
+        <button
+          v-show="isBackTopVisible" class="rounded-full p-2 text-2xl hover:bg-black:10"
+          @click="() => scrollTo({ y: 0 })"
+        >
+          <div class="i-system-uicons-arrow-up-circle m--2px text-28px" />
+        </button>
+
+        <div class="rounded-full p-2 text-2xl hover:bg-black:10">
+          <nuxt-link
+            class="i-logos-github-icon?mask block text-inherit" target="_blank"
+            to="https://github.com/chnbsdan/bing.wallpaper"
+          />
         </div>
-        <footer class="py-4 text-center bg-base">
-          <span class="text-xs op-50">© {{ new Date().getFullYear() }} · 加载中...</span>
-        </footer>
       </div>
-    </template>
-  </ClientOnly>
+    </header>
+
+    <image-grid />
+    <image-preview />
+
+    <footer class="py-4 text-center bg-base">
+      <span class="text-xs op-50">© {{ new Date().getFullYear() }} · 由小史先生维护 | All pictures on this site are from Bing
+        search</span>
+    </footer>
+  </div>
 </template>
