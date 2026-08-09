@@ -47,7 +47,9 @@ useCustomSeoMeta({
   <div class="min-h-screen flex flex-col gap-1 md:gap-2">
     <header class="sticky top-0 z-10 mx-1 border-b-1 rounded-b px-4 py-2 shadow backdrop-blur md:mx-4 bg-base">
       <div class="flex items-center">
-        <div class="i-logos-bing mt--1 text-2xl" />
+        <!-- ★★★ 把这一行替换掉 ★★★ -->
+        <!-- <div class="i-logos-bing mt--1 text-2xl" /> -->
+        <img src="/favicon.ico" alt="Logo" class="h-6 w-auto" />
         <div class="mx-1 flex items-center">
           <h1 class="font-bold">
             {{ market.title }}
