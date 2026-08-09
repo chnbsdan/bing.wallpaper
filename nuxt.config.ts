@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { cwd, env } from 'node:process'
 
+// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
@@ -18,8 +19,6 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
-    // ★★★ 添加这一行 ★★★
-    preset: 'cloudflare-pages',
     serverAssets: [{
       baseName: 'archive',
       dir: resolve(cwd(), 'archive'),
