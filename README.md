@@ -40,6 +40,14 @@ https://bing.api.hangdn.com/api/image.random?mkt=it-IT
 https://bing.api.hangdn.com/api/image.random?mkt=ja-JP
 
 ```
+## API接口
+
+/api/images?mkt=zh-CN&random=true，	返回随机壁纸 JSON 
+/api/image.random?mkt=zh-CN	，直接返回随机壁纸图片 
+/api/random?mkt=zh-CN	，返回随机壁纸 JSON	 
+/api/random?mkt=zh-CN&redirect=true，	重定向到随机壁纸图片 
+
+
 ### 核心能力
 
 | 能力 | 说明 |
