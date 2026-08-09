@@ -24,7 +24,7 @@
 <img 
   src="https://bing.api.hangdn.com/api/image.random?mkt=en-US" 
   width="800" 
-  height="600"
+  height="500"
   style="object-fit: cover;"
 />
 
