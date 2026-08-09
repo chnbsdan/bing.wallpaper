@@ -33,14 +33,22 @@ function clearSearch() {
   searchInputRef.value?.focus()
 }
 
-useEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault()
-    searchInputRef.value?.focus()
+// ★★★ 安全监听键盘事件 ★★★
+onMounted(() => {
+  const handler = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault()
+      searchInputRef.value?.focus()
+    }
+    if (e.key === 'Escape' && searchKeyword.value) {
+      clearSearch()
+    }
   }
-  if (e.key === 'Escape' && searchKeyword.value) {
-    clearSearch()
-  }
+  document.addEventListener('keydown', handler)
+  // 清理事件监听
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handler)
+  })
 })
 
 useHead({
@@ -92,7 +100,7 @@ useCustomSeoMeta({
             v-model="searchKeyword"
             type="text"
             placeholder="搜索 (⌘K)"
-            class="w-full rounded-full border-1 border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80 outline-none transition-all placeholder:text-white/30 focus:border-rose-600/50 focus:ring-1 focus:ring-rose-600/50"
+            class="w-full rounded-full border-1 border-white/10 bg-black/20 px-3 py-1 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-rose-600/50 focus:ring-1 focus:ring-rose-600/50"
             @input="handleSearch"
           />
           <button
