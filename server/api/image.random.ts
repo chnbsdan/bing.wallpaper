@@ -27,12 +27,13 @@ export default defineEventHandler(async (event) => {
 
     const blob = await response.blob()
 
-    // 3. 返回图片
+    // 3. 返回图片 + 强制禁用缓存
     const contentType = response.headers.get('content-type') || 'image/jpeg'
     setHeader(event, 'Content-Type', contentType)
-    setHeader(event, 'Cache-Control', 'no-cache, no-store, must-revalidate')
+    setHeader(event, 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
     setHeader(event, 'Pragma', 'no-cache')
     setHeader(event, 'Expires', '0')
+    setHeader(event, 'ETag', `"${Date.now()}-${Math.random()}"`)
 
     return blob
   } catch (error) {
