@@ -23,7 +23,6 @@ function loadAllImagesFromArchive(mkt: string) {
         const content = readFileSync(filePath, 'utf-8')
         const data = JSON.parse(content)
 
-        // data 格式: { "20260809": {...}, "20260808": {...} }
         for (const [date, info] of Object.entries(data)) {
           const item = info as any
           allImages.push({
@@ -35,14 +34,13 @@ function loadAllImagesFromArchive(mkt: string) {
           })
         }
       } catch (e) {
-        console.warn('读取失败:', filePath, e)
+        console.warn('读取失败:', filePath)
       }
     }
   } catch (e) {
-    console.warn('读取 archive 失败:', archivePath, e)
+    console.warn('读取 archive 失败:', archivePath)
   }
 
-  // 按日期倒序排序（最新的在前）
   allImages.sort((a, b) => b.date.localeCompare(a.date))
   return allImages
 }
@@ -59,27 +57,28 @@ function getCachedImages(mkt: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery<ImagesQuery>(event)
+  try {
+    const query = getQuery<ImagesQuery>(event)
 
-  const idx = Number(query.idx) || 0
-  const count = Number(query.count) || 30
-  const mkt = (query.mkt as string) || 'zh-cn'
-  const keyword = (query.keyword || '').trim().toLowerCase()
+    const idx = Number(query.idx) || 0
+    const count = Number(query.count) || 30
+    const mkt = (query.mkt as string) || 'zh-cn'
+    const keyword = (query.keyword || '').trim().toLowerCase()
 
-  // 获取该语言的所有数据
-  let allImages = getCachedImages(mkt)
+    let allImages = getCachedImages(mkt)
 
-  // ★★★ 搜索过滤 ★★★
-  if (keyword) {
-    allImages = allImages.filter((item: any) =>
-      (item.title || '').toLowerCase().includes(keyword) ||
-      (item.copyright || '').toLowerCase().includes(keyword) ||
-      (item.date || '').includes(keyword)
-    )
+    if (keyword) {
+      allImages = allImages.filter((item: any) =>
+        (item.title || '').toLowerCase().includes(keyword) ||
+        (item.copyright || '').toLowerCase().includes(keyword) ||
+        (item.date || '').includes(keyword)
+      )
+    }
+
+    const pageData = allImages.slice(idx, idx + count)
+    return pageData
+  } catch (e) {
+    console.error('API 错误:', e)
+    return []
   }
-
-  // 分页
-  const pageData = allImages.slice(idx, idx + count)
-
-  return pageData
 })
