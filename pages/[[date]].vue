@@ -124,7 +124,7 @@ useCustomSeoMeta({
     <image-preview />
 
     <footer class="py-4 text-center bg-base">
-      <span class="text-xs op-50">© {{ new Date().getFullYear() }} ·由小史先生提供维护 |  All pictures on this site are from Bing
+      <span class="text-xs op-50">© {{ new Date().getFullYear() }} · All pictures on this site are from Bing
         search</span>
     </footer>
   </div>
