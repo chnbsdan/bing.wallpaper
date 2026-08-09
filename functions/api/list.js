@@ -27,9 +27,10 @@ export async function onRequest(context) {
   try {
     const host = url.origin;
     // ★★★ 读取 bing-wallpaper2 的 data.json ★★★
-    const jsonUrl = `${host}/json/data.json`;
-    const resp = await fetch(new Request(jsonUrl, request));
-    if (!resp.ok) {
+    // 改成从你的 Vercel API 读取
+const apiUrl = `https://bing.api.hangdn.com/api/images?mkt=zh-CN&idx=0&count=9999`;
+const resp = await fetch(apiUrl);
+       if (!resp.ok) {
       return new Response(JSON.stringify({
         error: '无法加载壁纸数据'
       }), {
