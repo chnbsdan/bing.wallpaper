@@ -22,6 +22,8 @@
 
 一个**全自动的必应壁纸数据中台**，每天定时从必应官方抓取全球 9 个地区的壁纸元数据，清洗后存入 `archive/` 目录，并通过优雅的 Web 界面展示。
 
+[](https://bing.api.hangdn.com/api/image.random?mkt=en-US)
+
 ### 核心能力
 
 | 能力 | 说明 |
