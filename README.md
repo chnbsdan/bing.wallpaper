@@ -28,6 +28,18 @@
   style="object-fit: cover;"
 />
 
+```
+https://bing.api.hangdn.com/api/image.random?mkt=zh-CN
+https://bing.api.hangdn.com/api/image.random?mkt=en-US
+https://bing.api.hangdn.com/api/image.random?mkt=de-DE
+https://bing.api.hangdn.com/api/image.random?mkt=en-CA
+https://bing.api.hangdn.com/api/image.random?mkt=en-GB
+https://bing.api.hangdn.com/api/image.random?mkt=en-IN
+https://bing.api.hangdn.com/api/image.random?mkt=fr-FR
+https://bing.api.hangdn.com/api/image.random?mkt=it-IT
+https://bing.api.hangdn.com/api/image.random?mkt=ja-JP
+
+```
 ### 核心能力
 
 | 能力 | 说明 |
