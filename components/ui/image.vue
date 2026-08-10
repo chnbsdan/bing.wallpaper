@@ -5,23 +5,21 @@ const imageUrl = ref('')
 const loading = ref(true)
 
 function loadImage(src: string) {
+  if (!src) {
+    loading.value = true
+    imageUrl.value = ''
+    return
+  }
   loading.value = true
-  imageUrl.value = ''
-
-  setTimeout(
-    () => {
-      imageUrl.value = src
-      loading.value = false
-    },
-    800,
-  )
+  // ★★★ 去掉延迟，直接加载 ★★★
+  imageUrl.value = src
+  const img = new Image()
+  img.onload = () => { loading.value = false }
+  img.onerror = () => { loading.value = false }
+  img.src = src
 }
 
-watch(() => props.src, loadImage)
-
-onMounted(() => {
-  loadImage(props.src)
-})
+watch(() => props.src, loadImage, { immediate: true })
 </script>
 
 <template>
@@ -29,6 +27,7 @@ onMounted(() => {
     <div v-if="loading">
       <span class="i-system-uicons-loader block animate-spin text-3xl" />
     </div>
-    <img v-else :src="imageUrl" :alt="alt" class="h-full w-full object-cover">
+    <!-- ★★★ 关键改动：object-cover → object-contain ★★★ -->
+    <img v-else :src="imageUrl" :alt="alt" class="h-full w-full object-contain" />
   </div>
 </template>
