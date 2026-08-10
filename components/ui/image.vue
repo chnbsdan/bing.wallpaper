@@ -23,10 +23,8 @@ watch(() => props.src, loadImage, { immediate: true })
 
 <template>
   <div class="grid h-full w-full place-items-center of-hidden">
-    <div v-if="loading">
-      <span class="i-system-uicons-loader block animate-spin text-3xl" />
-    </div>
-    <!-- ★★★ object-cover → object-contain ★★★ -->
+    <div v-if="loading" class="i-system-uicons-loader animate-spin text-3xl" />
+    <!-- ★★★ 改为 object-contain ★★★ -->
     <img v-else :src="imageUrl" :alt="alt" class="h-full w-full object-contain" />
   </div>
 </template>
