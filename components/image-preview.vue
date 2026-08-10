@@ -13,37 +13,51 @@ const previewDate = computed(() => {
   const date = Array.isArray(route.params.date)
     ? route.params.date[0]
     : route.params.date
+
   return regex.test(date) ? date : null
 })
 
 const previewDatePrev = computed(() => {
-  if (!previewDate.value) return ''
+  if (!previewDate.value)
+    return ''
+
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() - 1))
-  if (d < new Date('2016-03-05')) return ''
+
+  if (d < new Date('2016-03-05'))
+    return ''
+
   return formatDate(d, 'YYYY-MM-DD')
 })
 
 const previewDateNext = computed(() => {
-  if (!previewDate.value) return ''
+  if (!previewDate.value)
+    return ''
+
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() + 1))
-  if (d > new Date()) return ''
+
+  if (d > new Date())
+    return ''
+
   return formatDate(d, 'YYYY-MM-DD')
 })
 
 watch(() => previewDate.value, async (date) => {
-  if (date) {
+  if (date)
     await getPreviewImage(date)
-  } else {
+  else
     previewImage.value = null
-  }
 }, { immediate: true })
 
 const previewUrl = computed(() => {
-  if (!previewImage.value) return ''
+  if (!previewImage.value)
+    return ''
   const { url } = previewImage.value
-  if (!url.includes('/th?id=')) return url
+
+  if (!url.includes('/th?id='))
+    return url
+
   return isMobile.value
     ? url.replace('1920x1080', '768x1280')
     : url
@@ -56,7 +70,8 @@ function toggleImageMetaVisible() {
 }
 
 const downloads = computed(() => {
-  if (!previewImage.value) return []
+  if (!previewImage.value)
+    return []
   const { url, date } = previewImage.value
   const filename = `bing-${date}-1920x1080.jpg`
   if (url.includes('/th?id=')) {
@@ -108,7 +123,9 @@ async function downloadImage(item: { url: string, label: string, filename: strin
 
 <template>
   <ui-dialog :visible="!!previewDate" @close="navigateTo({ params: { date: '' }, query: { mkt } })">
-    <div class="relative grid h-[85vh] w-[92vw] place-items-center of-hidden bg-black:12 text-white md:aspect-[16/9]">
+    <div
+      class="relative grid aspect-[3/5] h-85vh w-92vw place-items-center of-hidden bg-black:12 text-white md:aspect-[16/9]"
+    >
       <div class="absolute inset-0 z-1 grid grid-rows-[auto_1fr]">
         <div class="grid grid-cols-[1fr_2fr_1fr] w-full gap-1 border-b bg-black:12 p-2 shadow backdrop-blur transition-all">
           <div class="flex items-center justify-start gap-1" />
@@ -146,7 +163,6 @@ async function downloadImage(item: { url: string, label: string, filename: strin
 
       <template v-else-if="previewImage">
         <ui-image :src="previewUrl" :alt="previewImage.title" />
-
         <div
           class="absolute inset-x-0 z-1 z-2 transition-all"
           :class="imageMetaVisible ? 'bottom-0' : 'bottom--100%'"
