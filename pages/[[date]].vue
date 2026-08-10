@@ -70,11 +70,11 @@ useCustomSeoMeta({
         </button>
 
         <div class="rounded-full p-2 text-2xl hover:bg-black:10">
-          <nuxt-link
-            class="i-logos-github-icon?mask block text-inherit" target="_blank"
-            to="https://github.com/chnbsdan/bing.wallpaper"
-          />
-        </div>
+  <nuxt-link
+    class="i-carbon-api block text-inherit" target="_blank"
+    to="https://bing.api.hangdn.com/api"
+  />
+</div>
       </div>
     </header>
 
