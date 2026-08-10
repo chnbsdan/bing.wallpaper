@@ -187,7 +187,8 @@ useEventListener('keydown', (e) => {
 <template>
   <ui-dialog :visible="!!previewDate" @close="navigateTo({ params: { date: '' }, query: { mkt } })">
     <!-- ★★★ 全屏容器 ★★★ -->
-    <div class="relative grid h-screen w-screen place-items-center of-hidden bg-black:12 text-white p-0">
+    <div class="relative grid h-screen w-screen place-items-center of-hidden bg-black/90 text-white p-0">
+
       <!-- 顶部栏 -->
       <div class="absolute inset-0 z-1 grid grid-rows-[auto_1fr] pointer-events-none">
         <div class="grid grid-cols-[1fr_2fr_1fr] w-full gap-1 border-b bg-black/30 p-2 shadow backdrop-blur transition-all pointer-events-auto">
@@ -226,9 +227,9 @@ useEventListener('keydown', (e) => {
         <span class="i-system-uicons-loader animate-spin text-3xl" />
       </template>
 
-      <!-- 图片 + 缩放拖拽 -->
+      <!-- ★★★ 图片 + 缩放拖拽 ★★★ -->
       <template v-else-if="previewImage">
-        <!-- ★★★ 图片容器：全屏显示，使用 object-contain 完整显示图片 ★★★ -->
+        <!-- ★★★ 外层容器负责捕捉滚轮和拖拽事件 ★★★ -->
         <div
           class="h-full w-full overflow-hidden flex items-center justify-center"
           @wheel="handleWheel"
@@ -241,6 +242,7 @@ useEventListener('keydown', (e) => {
           @touchend="endDrag"
           @dblclick="doubleClickReset"
         >
+          <!-- ★★★ ui-image 负责显示图片，应用变换 ★★★ -->
           <ui-image
             :src="previewUrl"
             :alt="previewImage.title"
