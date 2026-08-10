@@ -71,7 +71,7 @@ useCustomSeoMeta({
 
        <div class="rounded-full p-2 text-2xl hover:bg-black:10">
   <nuxt-link
-    class="i-fa6-solid-file-lines block text-inherit" target="_blank"
+    class="i-system-uicons-document block text-inherit" target="_blank"
     to="https://bing.api.hangdn.com/api"
   />
 </div>
