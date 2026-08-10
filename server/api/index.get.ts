@@ -18,10 +18,13 @@ export default defineEventHandler((event) => {
     { code: 'it-IT', name: '意大利 (意大利语)' },
   ];
 
-  // 生成所有地区的随机图片链接 (用于 /api/image.random)
-  const imageRandomLinks = locales.map(locale => 
-    `<li><a href="${baseUrl}/api/image.random?mkt=${locale.code}" target="_blank">${baseUrl}/api/image.random?mkt=${locale.code}</a> (${locale.name})</li>`
-  ).join('');
+  // ★★★ 辅助函数：为指定路径生成所有地区的链接列表 ★★★
+  function generateLinks(path: string, queryParams: string = '') {
+    return locales.map(locale => {
+      const fullPath = `${baseUrl}${path}?mkt=${locale.code}${queryParams}`;
+      return `<li><a href="${fullPath}" target="_blank">${fullPath}</a> (${locale.name})</li>`;
+    }).join('');
+  }
 
   const html = `
 <!DOCTYPE html>
@@ -42,8 +45,8 @@ export default defineEventHandler((event) => {
     .tag.post { background: #ff9800; }
     hr { border: none; border-top: 1px solid #2a2a4e; margin: 30px 0; }
     ul { padding-left: 20px; }
-    li { margin-bottom: 6px; }
-    .locale-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+    li { margin-bottom: 4px; word-break: break-all; }
+    .locale-grid { display: grid; grid-template-columns: 1fr; gap: 2px; }
   </style>
 </head>
 <body>
@@ -53,7 +56,7 @@ export default defineEventHandler((event) => {
 
   <h2>接口列表</h2>
 
-  <!-- 1. 获取随机壁纸图片 (直接返回图片流) -->
+  <!-- 1. /api/image.random -->
   <div class="card">
     <h3><span class="tag get">GET</span> /api/image.random</h3>
     <p><strong>功能：</strong>获取一张随机壁纸图片（直接返回图片流）</p>
@@ -63,11 +66,11 @@ export default defineEventHandler((event) => {
     </ul>
     <p><strong>示例（点击直接打开图片）：</strong></p>
     <div class="locale-grid">
-      <ul>${imageRandomLinks}</ul>
+      <ul>${generateLinks('/api/image.random')}</ul>
     </div>
   </div>
 
-  <!-- 2. 获取随机壁纸 JSON -->
+  <!-- 2. /api/images?random=true -->
   <div class="card">
     <h3><span class="tag get">GET</span> /api/images?mkt=zh-CN&random=true</h3>
     <p><strong>功能：</strong>返回随机壁纸的 JSON 数据</p>
@@ -76,12 +79,13 @@ export default defineEventHandler((event) => {
       <li><code>mkt</code> (可选): 地区代码，默认 zh-CN</li>
       <li><code>random</code> (必需): 设置为 <code>true</code></li>
     </ul>
-    <p><strong>示例（点击查看 JSON）：</strong><br>
-      <a href="${baseUrl}/api/images?mkt=zh-CN&random=true" target="_blank">${baseUrl}/api/images?mkt=zh-CN&random=true</a>
-    </p>
+    <p><strong>示例（点击查看 JSON）：</strong></p>
+    <div class="locale-grid">
+      <ul>${generateLinks('/api/images', '&random=true')}</ul>
+    </div>
   </div>
 
-  <!-- 3. 获取随机壁纸 JSON (短地址) -->
+  <!-- 3. /api/random -->
   <div class="card">
     <h3><span class="tag get">GET</span> /api/random?mkt=zh-CN</h3>
     <p><strong>功能：</strong>返回随机壁纸的 JSON 数据（短地址）</p>
@@ -89,12 +93,13 @@ export default defineEventHandler((event) => {
     <ul>
       <li><code>mkt</code> (可选): 地区代码，默认 zh-CN</li>
     </ul>
-    <p><strong>示例（点击查看 JSON）：</strong><br>
-      <a href="${baseUrl}/api/random?mkt=zh-CN" target="_blank">${baseUrl}/api/random?mkt=zh-CN</a>
-    </p>
+    <p><strong>示例（点击查看 JSON）：</strong></p>
+    <div class="locale-grid">
+      <ul>${generateLinks('/api/random')}</ul>
+    </div>
   </div>
 
-  <!-- 4. 重定向到随机壁纸图片 -->
+  <!-- 4. /api/random?redirect=true -->
   <div class="card">
     <h3><span class="tag get">GET</span> /api/random?mkt=zh-CN&redirect=true</h3>
     <p><strong>功能：</strong>重定向到一张随机壁纸图片</p>
@@ -103,12 +108,13 @@ export default defineEventHandler((event) => {
       <li><code>mkt</code> (可选): 地区代码，默认 zh-CN</li>
       <li><code>redirect</code> (必需): 设置为 <code>true</code></li>
     </ul>
-    <p><strong>示例（点击直接跳转到图片）：</strong><br>
-      <a href="${baseUrl}/api/random?mkt=zh-CN&redirect=true" target="_blank">${baseUrl}/api/random?mkt=zh-CN&redirect=true</a>
-    </p>
+    <p><strong>示例（点击直接跳转到图片）：</strong></p>
+    <div class="locale-grid">
+      <ul>${generateLinks('/api/random', '&redirect=true')}</ul>
+    </div>
   </div>
 
-  <!-- 5. 今日壁纸 (重定向) -->
+  <!-- 5. /api/daily?redirect=true -->
   <div class="card">
     <h3><span class="tag get">GET</span> /api/daily?mkt=zh-CN&redirect=true</h3>
     <p><strong>功能：</strong>重定向到今日壁纸图片</p>
@@ -117,14 +123,15 @@ export default defineEventHandler((event) => {
       <li><code>mkt</code> (可选): 地区代码，默认 zh-CN</li>
       <li><code>redirect</code> (必需): 设置为 <code>true</code></li>
     </ul>
-    <p><strong>示例（点击直接跳转到今日图片）：</strong><br>
-      <a href="${baseUrl}/api/daily?mkt=zh-CN&redirect=true" target="_blank">${baseUrl}/api/daily?mkt=zh-CN&redirect=true</a>
-    </p>
+    <p><strong>示例（点击直接跳转到今日图片）：</strong></p>
+    <div class="locale-grid">
+      <ul>${generateLinks('/api/daily', '&redirect=true')}</ul>
+    </div>
   </div>
 
   <hr>
-  <p style="color: #888;">💡 支持的地区代码: zh-CN, en-US, ja-JP, de-DE, fr-FR, it-IT, en-CA, en-GB, en-IN</p>
-  <p style="color: #888;">📅 壁纸每日自动更新 · 图片来自 Bing</p>
+  <p style="color: #888;">💡 支持的地区代码: zh-CN, en-US, en-GB, en-CA, en-IN, ja-JP, de-DE, fr-FR, it-IT</p>
+  <p style="color: #888;">📅 必应壁纸每日自动更新 · 来自 Bing | 小史先生提供维护</p>
 </body>
 </html>
   `;
