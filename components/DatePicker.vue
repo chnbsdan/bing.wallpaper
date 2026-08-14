@@ -1,13 +1,11 @@
 <template>
-  <div class="date-picker">
-    <input
-      type="date"
-      :value="dateValue"
-      @input="onDateChange"
-      :max="maxDate"
-      class="date-input"
-    />
-  </div>
+  <input
+    type="date"
+    :value="dateValue"
+    @input="onDateChange"
+    :max="maxDate"
+    class="date-input"
+  />
 </template>
 
 <script setup lang="ts">
@@ -47,11 +45,6 @@ const onDateChange = (event: Event) => {
 </script>
 
 <style scoped>
-.date-picker {
-  display: inline-flex;
-  align-items: center;
-  margin: 0 8px;
-}
 .date-input {
   padding: 4px 8px;
   border: 1px solid #e2e8f0;
@@ -60,7 +53,7 @@ const onDateChange = (event: Event) => {
   font-size: 14px;
   color: inherit;
   cursor: pointer;
-  max-width: 140px;
+  max-width: 130px;
 }
 .date-input:focus {
   outline: none;
