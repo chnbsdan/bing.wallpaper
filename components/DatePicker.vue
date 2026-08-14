@@ -17,10 +17,7 @@ const dateValue = ref('')
 watch(
   () => route.params.date,
   (newDate) => {
-    if (Array.isArray(newDate) && newDate.length === 3) {
-      const [year, month, day] = newDate
-      dateValue.value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-    } else if (typeof newDate === 'string' && newDate.includes('-')) {
+    if (typeof newDate === 'string' && newDate.includes('-')) {
       dateValue.value = newDate
     } else {
       dateValue.value = ''
@@ -38,9 +35,9 @@ const onDateChange = (event: Event) => {
     router.push('/')
     return
   }
-  const [year, month, day] = date.split('-')
   const currentMkt = route.query.mkt || 'zh-CN'
-  router.push(`/${year}/${month}/${day}?mkt=${currentMkt}`)
+  // 改成 /2023-10-14 格式
+  router.push(`/${date}?mkt=${currentMkt}`)
 }
 </script>
 
