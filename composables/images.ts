@@ -42,6 +42,28 @@ async function getImageByKey(date: string, mkt: string) {
   }
 }
 
+// ========== 新增：日期路由解析 ==========
+export function useDateRoute() {
+  const route = useRoute()
+  
+  const parseDateParam = (): string | null => {
+    const dateParam = route.params.date
+    if (!dateParam) return null
+    if (Array.isArray(dateParam) && dateParam.length === 3) {
+      const [year, month, day] = dateParam
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    }
+    if (typeof dateParam === 'string' && dateParam.includes('-')) {
+      return dateParam
+    }
+    return null
+  }
+  
+  const targetDate = parseDateParam()
+  const mkt = route.query.mkt as string || 'zh-CN'
+  return { targetDate, mkt }
+}
+
 export function useImages() {
   return { ...toRefs(state), loadImages, resetImages, getImageByKey }
 }
