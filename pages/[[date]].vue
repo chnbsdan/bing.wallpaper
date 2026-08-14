@@ -47,8 +47,6 @@ useCustomSeoMeta({
   <div class="min-h-screen flex flex-col gap-1 md:gap-2">
     <header class="sticky top-0 z-10 mx-1 border-b-1 rounded-b px-4 py-2 shadow backdrop-blur md:mx-4 bg-base">
       <div class="flex items-center">
-        <!-- ★★★ 把这一行替换掉 ★★★ -->
-        <!-- <div class="i-logos-bing mt--1 text-2xl" /> -->
         <img src="/favicon.ico" alt="Logo" class="h-6 w-auto" />
         <div class="mx-1 flex items-center">
           <h1 class="font-bold">
@@ -59,6 +57,7 @@ useCustomSeoMeta({
         </div>
 
         <market-select />
+        <date-picker />
 
         <div class="ml-auto" />
 
@@ -69,12 +68,12 @@ useCustomSeoMeta({
           <div class="i-system-uicons-arrow-up-circle m--2px text-28px" />
         </button>
 
-       <div class="rounded-full p-2 text-2xl hover:bg-black:10">
-  <nuxt-link
-    class="i-system-uicons-document block text-inherit" target="_blank"
-    to="https://bing.api.hangdn.com/api"
-  />
-</div>
+        <div class="rounded-full p-2 text-2xl hover:bg-black:10">
+          <nuxt-link
+            class="i-system-uicons-document block text-inherit" target="_blank"
+            to="https://bing.api.hangdn.com/api"
+          />
+        </div>
       </div>
     </header>
 
@@ -82,8 +81,7 @@ useCustomSeoMeta({
     <image-preview />
 
     <footer class="py-4 text-center bg-base">
-      <span class="text-xs op-50">© {{ new Date().getFullYear() }} · 由小史先生维护 | All pictures on this site are from Bing
-        search</span>
+      <span class="text-xs op-50">© {{ new Date().getFullYear() }} · 由小史先生维护 | All pictures on this site are from Bing search</span>
     </footer>
   </div>
 </template>
