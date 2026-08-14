@@ -82,6 +82,7 @@ const downloads = computed(() => {
       { label: '1366x768', url: url.replace('1920x1080', '1366x768'), filename: filename.replace('1920x1080', '1366x768') },
       { label: '1024x768', url: url.replace('1920x1080', '1024x768'), filename: filename.replace('1920x1080', '1024x768') },
       { label: '768x1280', url: url.replace('1920x1080', '768x1280'), filename: filename.replace('1920x1080', '768x1280') },
+      { label: '1080x1920', url: url.replace('1920x1080', '1080x1920'), filename: filename.replace('1920x1080', '1080x1920') },
     ]
   }
   else {
