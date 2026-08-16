@@ -4,7 +4,7 @@ const route = useRoute()
 const year = computed(() => route.params.year as string)
 
 const { mkt } = useMarket()
-const { imageMap, loadImages, resetImages, hasMore, isFetching } = useImages()
+const { imageMap, loadImages } = useImages()
 
 const images = computed(() => {
   return [...imageMap.value.values()]
