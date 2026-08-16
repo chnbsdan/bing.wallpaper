@@ -24,7 +24,7 @@ const previewDatePrev = computed(() => {
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() - 1))
 
-  if (d < new Date('2016-02-01'))
+  if (d < new Date('2010-01-01'))
     return ''
 
   return formatDate(d, 'YYYY-MM-DD')
