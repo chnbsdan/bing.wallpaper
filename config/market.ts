@@ -109,7 +109,7 @@ export const markets: MarketConfig[] = [
     title: '必应壁纸',
     description: '每日一图，带你领略世界之美',
     keywords: '壁纸, 壁纸下载, 壁纸免费下载, 必应壁纸, 必应壁纸下载, 必应壁纸免费下载, 4k 壁纸, 4k 壁纸下载, 4k 壁纸免费下载, 高清壁纸, 高清壁纸下载, 高清壁纸免费下载',
-    startDate: '2016-03-05 00:00:00',
+    startDate: '2010-01-01 00:00:00',
   },
 ]
 
