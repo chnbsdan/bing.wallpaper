@@ -4,7 +4,7 @@ const route = useRoute()
 const yearMonth = computed(() => route.params.yearMonth as string)
 
 const { mkt } = useMarket()
-const { imageMap, loadImages, resetImages, hasMore, isFetching } = useImages()
+const { imageMap, loadImages } = useImages()
 
 const year = computed(() => yearMonth.value.slice(0, 4))
 const month = computed(() => parseInt(yearMonth.value.slice(4, 6)))
@@ -13,7 +13,7 @@ const monthLabel = computed(() => `${year.value}年${month.value}月`)
 const images = computed(() => {
   return [...imageMap.value.values()]
     .filter(img => {
-      const imgDate = img.date.replace(/-/g, '')  // "2017-05-01" → "20170501"
+      const imgDate = img.date.replace(/-/g, '')
       return imgDate.startsWith(yearMonth.value)
     })
     .sort((a, b) => b.date.localeCompare(a.date))
