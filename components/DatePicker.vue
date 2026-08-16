@@ -3,8 +3,10 @@
     type="date"
     :value="dateValue"
     @input="onDateChange"
+    @blur="onBlur"
     :max="maxDate"
     class="date-input"
+    placeholder="日期或年份"
   />
 </template>
 
@@ -28,6 +30,11 @@ watch(
 
 const maxDate = new Date().toISOString().split('T')[0]
 
+// 判断格式
+const isYear = (val: string): boolean => /^\d{4}$/.test(val)
+const isYearMonth = (val: string): boolean => /^\d{6}$/.test(val)
+const isFullDate = (val: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(val)
+
 const onDateChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const date = target.value
@@ -35,9 +42,45 @@ const onDateChange = (event: Event) => {
     router.push('/')
     return
   }
+  
   const currentMkt = route.query.mkt || 'zh-CN'
-  // 改成 /2023-10-14 格式
+  
+  // 1. 年份：2018 → /year/2018
+  if (isYear(date)) {
+    router.push(`/year/${date}?mkt=${currentMkt}`)
+    return
+  }
+  
+  // 2. 年月：201705 → /year-month/201705
+  if (isYearMonth(date)) {
+    router.push(`/year-month/${date}?mkt=${currentMkt}`)
+    return
+  }
+  
+  // 3. 完整日期：2018-08-15 → /2018-08-15
+  if (isFullDate(date)) {
+    router.push(`/${date}?mkt=${currentMkt}`)
+    return
+  }
+  
   router.push(`/${date}?mkt=${currentMkt}`)
+}
+
+const onBlur = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const val = target.value
+  if (!val) return
+  
+  const currentMkt = route.query.mkt || 'zh-CN'
+  
+  if (isYear(val)) {
+    router.push(`/year/${val}?mkt=${currentMkt}`)
+    return
+  }
+  
+  if (isYearMonth(val)) {
+    router.push(`/year-month/${val}?mkt=${currentMkt}`)
+  }
 }
 </script>
 
