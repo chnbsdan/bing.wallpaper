@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { formatDate } from '@vueuse/core'
 
+// ========== 新增：事件定义 ==========
+const emit = defineEmits<{
+  close: []
+}>()
+
 const isMobile = inject('isMobile', ref(false))
 
 const route = useRoute()
@@ -120,10 +125,22 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.disabled = false
   button.removeAttribute('aria-busy')
 }
+
+// ========== 新增：统一的关闭处理函数 ==========
+function handleClose() {
+  previewImage.value = null
+  emit('close')
+  // 使用 nextTick 确保父组件先处理 close 事件
+  nextTick(() => {
+    if (route.params.date) {
+      navigateTo({ params: { date: '' }, query: { mkt } })
+    }
+  })
+}
 </script>
 
 <template>
-  <ui-dialog :visible="!!previewDate" @close="navigateTo({ params: { date: '' }, query: { mkt } })">
+  <ui-dialog :visible="!!previewDate" @close="handleClose">
     <div
       class="relative grid h-screen w-screen place-items-center of-hidden bg-black:12 text-white"
     >
@@ -135,9 +152,10 @@ async function downloadImage(item: { url: string, label: string, filename: strin
             <span class="text-shadow">{{ previewDate }}</span>
           </div>
           <div class="flex items-center justify-end gap-1">
-            <nuxt-link class="p-1 text-xl md:hover:bg-black:12" :to="{ params: { date: '' }, query: { mkt } }">
+            <!-- 修改：nuxt-link 改为 button，点击触发 handleClose -->
+            <button class="p-1 text-xl md:hover:bg-black:12" @click="handleClose">
               <div class="i-system-uicons-cross" />
-            </nuxt-link>
+            </button>
           </div>
         </div>
 
