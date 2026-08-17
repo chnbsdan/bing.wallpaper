@@ -1,6 +1,7 @@
 <!-- pages/year-month/[yearMonth].vue -->
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const yearMonth = computed(() => route.params.yearMonth as string)
 
 const { mkt } = useMarket()
@@ -24,8 +25,18 @@ await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
 
 <template>
   <section class="mx-1 flex-1 md:mx-4">
-    <div class="mb-3 text-sm text-gray-500">
-      📅 {{ monthLabel }} 共 {{ images.length }} 张壁纸
+    <!-- 返回首页按钮 -->
+    <div class="mb-4 flex items-center gap-3">
+      <button
+        @click="router.push('/')"
+        class="flex items-center gap-1 rounded-full border px-3 py-1 text-sm hover:bg-black:5"
+      >
+        <span class="i-system-uicons-arrow-left" />
+        返回首页
+      </button>
+      <span class="text-sm text-gray-500">
+        📅 {{ monthLabel }} 共 {{ images.length }} 张壁纸
+      </span>
     </div>
 
     <div class="grid grid-cols-2 gap-2 lg:grid-cols-5 md:grid-cols-3">
