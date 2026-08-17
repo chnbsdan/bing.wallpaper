@@ -3,9 +3,11 @@ const route = useRoute()
 const router = useRouter()
 const yearMonth = computed(() => route.params.yearMonth as string)
 
+// 1. 确保从 useMarket 中解构出 mkt (响应式引用)
 const { mkt } = useMarket()
 const { imageMap, loadImages } = useImages()
-const { getPreviewImage } = usePreview()  // 新增
+// 2. 导入预览功能
+const { getPreviewImage } = usePreview()
 
 const year = computed(() => yearMonth.value.slice(0, 4))
 const month = computed(() => parseInt(yearMonth.value.slice(4, 6)))
@@ -20,18 +22,19 @@ const images = computed(() => {
     .sort((a, b) => b.date.localeCompare(a.date))
 })
 
-// ===== 新增：预览控制 =====
+// 3. 预览控制状态
 const showPreview = ref(false)
 
+// 4. 打开预览的方法
 async function openPreview(image: any) {
   await getPreviewImage(image.date)
   showPreview.value = true
 }
 
+// 5. 关闭预览的方法
 function closePreview() {
   showPreview.value = false
 }
-// ===== 新增结束 =====
 
 await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
 </script>
@@ -51,7 +54,7 @@ await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
       </span>
     </div>
 
-    <!-- 修改：nuxt-link 换成 div + @click -->
+    <!-- 6. 关键修改：使用 div + @click 替代 nuxt-link -->
     <div class="grid grid-cols-2 gap-2 lg:grid-cols-5 md:grid-cols-3">
       <div
         v-for="image in images"
@@ -63,7 +66,7 @@ await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
       </div>
     </div>
 
-    <!-- 新增：预览组件 -->
+    <!-- 7. 添加预览组件 -->
     <image-preview v-if="showPreview" @close="closePreview" />
 
     <div v-if="images.length === 0" class="py-8 text-center text-gray-400">
