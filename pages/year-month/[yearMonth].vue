@@ -12,7 +12,6 @@ const year = computed(() => yearMonth.value.slice(0, 4))
 const month = computed(() => parseInt(yearMonth.value.slice(4, 6)))
 const monthLabel = computed(() => `${year.value}年${month.value}月`)
 
-// 过滤出当前年月的图片
 const images = computed(() => {
   return [...imageMap.value.values()]
     .filter(img => {
@@ -22,7 +21,6 @@ const images = computed(() => {
     .sort((a, b) => b.date.localeCompare(a.date))
 })
 
-// 滚动控制
 const scrollY = ref(0)
 const isBackTopVisible = computed(() => scrollY.value > 300)
 
@@ -38,7 +36,6 @@ function scrollToTop() {
   }
 }
 
-// 滚动加载更多
 const containerRef = ref<HTMLElement | null>(null)
 
 useInfiniteScroll(
@@ -56,12 +53,11 @@ useInfiniteScroll(
   { distance: 100 }
 )
 
-// 首次加载：加载第一页（30条）
 await loadImages({ idx: 0, count: 30, mkt: mkt.value })
 </script>
 
 <template>
-  <section class="mx-1 flex-1 md:mx-4 flex flex-col h-[calc(100vh-80px)]">
+  <section class="mx-1 flex-1 md:mx-4 flex flex-col min-h-[calc(100vh-80px)]">
     <!-- 顶部导航 -->
     <div class="sticky top-0 z-10 mb-4 flex items-center gap-3 bg-base/80 py-2 backdrop-blur flex-shrink-0">
       <button
@@ -112,15 +108,18 @@ await loadImages({ idx: 0, count: 30, mkt: mkt.value })
       <div v-if="images.length === 0 && !isFetching" class="py-8 text-center text-gray-400">
         暂无 {{ monthLabel }} 的壁纸数据
       </div>
+      
+      <!-- 底部占位 -->
+      <div class="h-4" />
     </div>
 
     <!-- 回顶部按钮 -->
     <button
       v-show="isBackTopVisible"
-      class="fixed bottom-8 right-8 z-20 rounded-full bg-black/70 p-3 text-white shadow-lg transition-all hover:bg-black/90"
+      class="fixed bottom-8 right-8 z-20 rounded-full bg-black/70 p-3 text-white shadow-lg transition-all hover:bg-black/90 flex items-center justify-center"
       @click="scrollToTop"
     >
-      <span class="i-system-uicons-arrow-up text-2xl" />
+      <span class="i-system-uicons-arrow-up text-2xl block" />
     </button>
   </section>
 </template>
