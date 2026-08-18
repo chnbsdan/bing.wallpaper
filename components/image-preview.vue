@@ -9,7 +9,7 @@ const emit = defineEmits<{
 const isMobile = inject('isMobile', ref(false))
 
 const route = useRoute()
-const router = useRouter() // 新增：获取 router 实例
+const router = useRouter()
 const regex = /\d{4}-\d{2}-\d{2}/
 
 // 确保 mkt 始终是字符串
@@ -128,31 +128,27 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.removeAttribute('aria-busy')
 }
 
-// ========== 新增：切换日期（使用 replace 替换历史记录） ==========
+// ========== 切换日期：使用 replace 替换当前预览页历史 ==========
 function navigateToDate(date: string) {
   if (!date) return
-  // 使用 router.replace 替换当前历史记录，而不是 push
+  // 替换当前历史记录（预览页），不增加新记录
   router.replace({
     params: { date },
     query: { mkt: mktString.value }
   })
 }
 
-// ========== 关闭处理函数：直接跳转到首页 ==========
+// ========== 关闭处理：后退一步回到列表页 ==========
 function handleClose() {
   previewImage.value = null
   emit('close')
   
-  // 直接跳转到首页，并保留 mkt 参数
-  // 用户可以通过浏览器的“后退”按钮回到之前的列表页
   nextTick(() => {
-    navigateTo({ 
-      params: { date: '' }, 
-      query: { mkt: mktString.value } 
-    })
+    // 直接后退一步，回到进入预览前的列表页
+    window.history.back()
   })
 }
-// ========== 关闭处理函数结束 ==========
+// ========== 关闭处理结束 ==========
 </script>
 
 <template>
@@ -168,7 +164,6 @@ function handleClose() {
             <span class="text-shadow">{{ previewDate }}</span>
           </div>
           <div class="flex items-center justify-end gap-1">
-            <!-- 关闭按钮 -->
             <button class="p-1 text-xl md:hover:bg-black:12" @click="handleClose">
               <div class="i-system-uicons-cross" />
             </button>
