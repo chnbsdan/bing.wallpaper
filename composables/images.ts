@@ -11,9 +11,15 @@ async function loadImages(query: { idx: number, count: number, mkt: string }) {
     return
 
   state.isFetching = true
-  const images = await $fetch('/api/images', { query })
+  const images = await $fetch('/api/images', { 
+    query: { 
+      idx: 0,           // 从第0条开始
+      count: 12000,     // 一次拉取12000条，覆盖2010年至今所有数据
+      mkt: query.mkt 
+    } 
+  })
   state.isFetching = false
-  state.hasMore = images.length >= query.count - 2
+  state.hasMore = images.length >= 12000 - 2  // 如果返回数量接近12000，说明可能还有更多
   images.forEach(image => state.imageMap.set(image.date, image))
 }
 
