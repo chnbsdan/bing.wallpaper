@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { formatDate } from '@vueuse/core'
 
-// ========== 新增：事件定义 ==========
+// ========== 事件定义 ==========
 const emit = defineEmits<{
   close: []
 }>()
@@ -11,7 +11,16 @@ const isMobile = inject('isMobile', ref(false))
 const route = useRoute()
 const regex = /\d{4}-\d{2}-\d{2}/
 
+// 修复：确保 mkt 始终是字符串
 const { mkt } = useMarket()
+const mktString = computed(() => {
+  if (typeof mkt === 'object' && mkt !== null) {
+    // 如果 mkt 是 ref，取它的 .value
+    return mkt.value || 'zh-CN'
+  }
+  return mkt || 'zh-CN'
+})
+
 const { previewImage, getPreviewImage, isFeching } = usePreview()
 
 const previewDate = computed(() => {
@@ -126,14 +135,17 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.removeAttribute('aria-busy')
 }
 
-// ========== 新增：统一的关闭处理函数 ==========
+// ========== 统一的关闭处理函数 ==========
 function handleClose() {
   previewImage.value = null
   emit('close')
-  // 使用 nextTick 确保父组件先处理 close 事件
+  // 使用 mktString 确保参数正确
   nextTick(() => {
     if (route.params.date) {
-      navigateTo({ params: { date: '' }, query: { mkt } })
+      navigateTo({ 
+        params: { date: '' }, 
+        query: { mkt: mktString.value } 
+      })
     }
   })
 }
@@ -152,7 +164,7 @@ function handleClose() {
             <span class="text-shadow">{{ previewDate }}</span>
           </div>
           <div class="flex items-center justify-end gap-1">
-            <!-- 修改：nuxt-link 改为 button，点击触发 handleClose -->
+            <!-- 关闭按钮 -->
             <button class="p-1 text-xl md:hover:bg-black:12" @click="handleClose">
               <div class="i-system-uicons-cross" />
             </button>
@@ -160,15 +172,18 @@ function handleClose() {
         </div>
 
         <div class="flex items-center justify-between p-2 md:p-4" @click.self="toggleImageMetaVisible">
+          <!-- 修复：上一张和下一张的链接也使用 mktString -->
           <nuxt-link
-            v-if="previewDatePrev" :to="{ params: { date: previewDatePrev }, query: { mkt } }"
+            v-if="previewDatePrev" 
+            :to="{ params: { date: previewDatePrev }, query: { mkt: mktString } }"
             class="border-1 p-3 text-2xl text-white shadow outline-0 backdrop-blur active:bg-black:32 md:(p-2 p-4 text-3xl hover:bg-black:12)"
           >
             <div class="i-system-uicons-arrow-left" />
           </nuxt-link>
 
           <nuxt-link
-            v-if="previewDateNext" :to="{ params: { date: previewDateNext }, query: { mkt } }"
+            v-if="previewDateNext" 
+            :to="{ params: { date: previewDateNext }, query: { mkt: mktString } }"
             class="border-1 p-3 text-2xl text-white shadow outline-0 backdrop-blur active:bg-black:32 md:(p-2 p-4 text-3xl hover:bg-black:12)"
           >
             <div class="i-system-uicons-arrow-right" />
@@ -191,8 +206,11 @@ function handleClose() {
               <h2 class="mb-1 text-xl md:text-3xl">
                 <span>{{ previewImage?.title }}</span>
                 <nuxt-link
-                  v-if="previewImage?.copyrightlink" class="i-logos-bing mb--3px ml-1 inline-block"
-                  target="_blank" :to="previewImage?.copyrightlink" tabindex="-1" title="Search in Bing"
+                  v-if="previewImage?.copyrightlink" 
+                  class="i-logos-bing mb--3px ml-1 inline-block"
+                  target="_blank" :to="previewImage?.copyrightlink" 
+                  tabindex="-1" 
+                  title="Search in Bing"
                 />
               </h2>
               <p class="mb-1 text-sm leading-relaxed op-50">
@@ -200,9 +218,11 @@ function handleClose() {
               </p>
               <div class="grid grid-cols-3 gap-1 md:(flex flex-wrap items-center)">
                 <button
-                  v-for="item in downloads" :key="item.url"
+                  v-for="item in downloads" 
+                  :key="item.url"
                   class="[&[aria-busy]_i]:i-system-uicons-loader flex items-center gap-1 border-1 border-rose-600:70 bg-rose-600:50 p-2 text-xs outline-0 backdrop-blur [&[aria-busy]_i]:animate-spin active:bg-rose-600:70 md:(hover:bg-rose-600:80)"
-                  :data-url="item.url" @click="(event) => downloadImage(item, event)"
+                  :data-url="item.url" 
+                  @click="(event) => downloadImage(item, event)"
                 >
                   <i class="i-system-uicons-cloud-download-alt text-4" />
                   <span>{{ item.label }}</span>
