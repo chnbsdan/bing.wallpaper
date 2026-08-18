@@ -5,24 +5,12 @@ const year = computed(() => route.params.year as string)
 
 const { mkt } = useMarket()
 const { imageMap, loadImages } = useImages()
-const { getPreviewImage } = usePreview()
 
 const images = computed(() => {
   return [...imageMap.value.values()]
     .filter(img => img.date.startsWith(year.value))
     .sort((a, b) => b.date.localeCompare(a.date))
 })
-
-const showPreview = ref(false)
-
-async function openPreview(image: any) {
-  await getPreviewImage(image.date)
-  showPreview.value = true
-}
-
-function closePreview() {
-  showPreview.value = false
-}
 
 await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
 </script>
@@ -42,20 +30,16 @@ await loadImages({ idx: 0, count: 1000, mkt: mkt.value })
       </span>
     </div>
 
-    <!-- 关键修改：使用 div + @click 替代 nuxt-link -->
     <div class="grid grid-cols-2 gap-2 lg:grid-cols-5 md:grid-cols-3">
-      <div
+      <nuxt-link
         v-for="image in images"
         :key="image.url"
-        class="cursor-pointer transition-opacity hover:opacity-80"
-        @click="openPreview(image)"
+        :to="`/${image.date}?mkt=${mkt}`"
+        class="block transition-opacity hover:opacity-80"
       >
         <image-card :image="image" />
-      </div>
+      </nuxt-link>
     </div>
-
-    <!-- 添加预览组件 -->
-    <image-preview v-if="showPreview" @close="closePreview" />
 
     <div v-if="images.length === 0" class="py-8 text-center text-gray-400">
       暂无 {{ year }} 年的壁纸数据
