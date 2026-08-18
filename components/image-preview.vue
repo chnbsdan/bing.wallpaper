@@ -9,9 +9,10 @@ const emit = defineEmits<{
 const isMobile = inject('isMobile', ref(false))
 
 const route = useRoute()
+const router = useRouter() // 新增：获取 router 实例
 const regex = /\d{4}-\d{2}-\d{2}/
 
-// 修复：确保 mkt 始终是字符串
+// 确保 mkt 始终是字符串
 const { mkt } = useMarket()
 const mktString = computed(() => {
   if (typeof mkt === 'object' && mkt !== null) {
@@ -127,36 +128,28 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.removeAttribute('aria-busy')
 }
 
-// ========== 核心修复：关闭处理函数 ==========
+// ========== 新增：切换日期（使用 replace 替换历史记录） ==========
+function navigateToDate(date: string) {
+  if (!date) return
+  // 使用 router.replace 替换当前历史记录，而不是 push
+  router.replace({
+    params: { date },
+    query: { mkt: mktString.value }
+  })
+}
+
+// ========== 关闭处理函数：直接跳转到首页 ==========
 function handleClose() {
-  // 1. 清空预览数据
   previewImage.value = null
-  
-  // 2. 触发父组件的 close 事件（如果有监听）
   emit('close')
   
-  // 3. 使用 nextTick 确保 DOM 更新完成后再执行路由操作
+  // 直接跳转到首页，并保留 mkt 参数
+  // 用户可以通过浏览器的“后退”按钮回到之前的列表页
   nextTick(() => {
-    // 如果当前路由有 date 参数（即处于预览状态），尝试返回上一页
-    if (route.params.date) {
-      // 如果浏览器历史记录长度大于 2，表示有上一页，执行后退
-      // 注意：length > 2 是为了过滤掉直接访问预览页的情况
-      if (window.history.length > 2) {
-        window.history.back()
-      } else {
-        // 否则（比如直接访问预览页），跳转到首页，并保留 mkt 参数
-        navigateTo({ 
-          params: { date: '' }, 
-          query: { mkt: mktString.value } 
-        })
-      }
-    } else {
-      // 如果没有 date 参数（非预览状态），直接跳转到首页
-      navigateTo({ 
-        params: { date: '' }, 
-        query: { mkt: mktString.value } 
-      })
-    }
+    navigateTo({ 
+      params: { date: '' }, 
+      query: { mkt: mktString.value } 
+    })
   })
 }
 // ========== 关闭处理函数结束 ==========
@@ -175,7 +168,7 @@ function handleClose() {
             <span class="text-shadow">{{ previewDate }}</span>
           </div>
           <div class="flex items-center justify-end gap-1">
-            <!-- 关闭按钮，点击触发 handleClose -->
+            <!-- 关闭按钮 -->
             <button class="p-1 text-xl md:hover:bg-black:12" @click="handleClose">
               <div class="i-system-uicons-cross" />
             </button>
@@ -183,23 +176,23 @@ function handleClose() {
         </div>
 
         <div class="flex items-center justify-between p-2 md:p-4" @click.self="toggleImageMetaVisible">
-          <!-- 上一张：使用 mktString 确保参数正确 -->
-          <nuxt-link
+          <!-- 上一张：使用 @click 和 router.replace -->
+          <button
             v-if="previewDatePrev" 
-            :to="{ params: { date: previewDatePrev }, query: { mkt: mktString } }"
             class="border-1 p-3 text-2xl text-white shadow outline-0 backdrop-blur active:bg-black:32 md:(p-2 p-4 text-3xl hover:bg-black:12)"
+            @click="navigateToDate(previewDatePrev)"
           >
             <div class="i-system-uicons-arrow-left" />
-          </nuxt-link>
+          </button>
 
-          <!-- 下一张：使用 mktString 确保参数正确 -->
-          <nuxt-link
+          <!-- 下一张：使用 @click 和 router.replace -->
+          <button
             v-if="previewDateNext" 
-            :to="{ params: { date: previewDateNext }, query: { mkt: mktString } }"
             class="border-1 p-3 text-2xl text-white shadow outline-0 backdrop-blur active:bg-black:32 md:(p-2 p-4 text-3xl hover:bg-black:12)"
+            @click="navigateToDate(previewDateNext)"
           >
             <div class="i-system-uicons-arrow-right" />
-          </nuxt-link>
+          </button>
         </div>
       </div>
 
