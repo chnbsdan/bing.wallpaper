@@ -15,7 +15,6 @@ const regex = /\d{4}-\d{2}-\d{2}/
 const { mkt } = useMarket()
 const mktString = computed(() => {
   if (typeof mkt === 'object' && mkt !== null) {
-    // 如果 mkt 是 ref，取它的 .value
     return mkt.value || 'zh-CN'
   }
   return mkt || 'zh-CN'
@@ -32,27 +31,23 @@ const previewDate = computed(() => {
 })
 
 const previewDatePrev = computed(() => {
-  if (!previewDate.value)
-    return ''
+  if (!previewDate.value) return ''
 
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() - 1))
 
-  if (d < new Date('2010-01-01'))
-    return ''
+  if (d < new Date('2010-01-01')) return ''
 
   return formatDate(d, 'YYYY-MM-DD')
 })
 
 const previewDateNext = computed(() => {
-  if (!previewDate.value)
-    return ''
+  if (!previewDate.value) return ''
 
   const c = new Date(previewDate.value)
   const d = new Date(c.setDate(c.getDate() + 1))
 
-  if (d > new Date())
-    return ''
+  if (d > new Date()) return ''
 
   return formatDate(d, 'YYYY-MM-DD')
 })
@@ -65,12 +60,10 @@ watch(() => previewDate.value, async (date) => {
 }, { immediate: true })
 
 const previewUrl = computed(() => {
-  if (!previewImage.value)
-    return ''
+  if (!previewImage.value) return ''
   const { url } = previewImage.value
 
-  if (!url.includes('/th?id='))
-    return url
+  if (!url.includes('/th?id=')) return url
 
   return isMobile.value
     ? url.replace('1920x1080', '768x1280')
@@ -84,8 +77,7 @@ function toggleImageMetaVisible() {
 }
 
 const downloads = computed(() => {
-  if (!previewImage.value)
-    return []
+  if (!previewImage.value) return []
   const { url, date } = previewImage.value
   const filename = `bing-${date}-1920x1080.jpg`
   if (url.includes('/th?id=')) {
@@ -135,13 +127,31 @@ async function downloadImage(item: { url: string, label: string, filename: strin
   button.removeAttribute('aria-busy')
 }
 
-// ========== 统一的关闭处理函数 ==========
+// ========== 核心修复：关闭处理函数 ==========
 function handleClose() {
+  // 1. 清空预览数据
   previewImage.value = null
+  
+  // 2. 触发父组件的 close 事件（如果有监听）
   emit('close')
-  // 使用 mktString 确保参数正确
+  
+  // 3. 使用 nextTick 确保 DOM 更新完成后再执行路由操作
   nextTick(() => {
+    // 如果当前路由有 date 参数（即处于预览状态），尝试返回上一页
     if (route.params.date) {
+      // 如果浏览器历史记录长度大于 2，表示有上一页，执行后退
+      // 注意：length > 2 是为了过滤掉直接访问预览页的情况
+      if (window.history.length > 2) {
+        window.history.back()
+      } else {
+        // 否则（比如直接访问预览页），跳转到首页，并保留 mkt 参数
+        navigateTo({ 
+          params: { date: '' }, 
+          query: { mkt: mktString.value } 
+        })
+      }
+    } else {
+      // 如果没有 date 参数（非预览状态），直接跳转到首页
       navigateTo({ 
         params: { date: '' }, 
         query: { mkt: mktString.value } 
@@ -149,6 +159,7 @@ function handleClose() {
     }
   })
 }
+// ========== 关闭处理函数结束 ==========
 </script>
 
 <template>
@@ -164,7 +175,7 @@ function handleClose() {
             <span class="text-shadow">{{ previewDate }}</span>
           </div>
           <div class="flex items-center justify-end gap-1">
-            <!-- 关闭按钮 -->
+            <!-- 关闭按钮，点击触发 handleClose -->
             <button class="p-1 text-xl md:hover:bg-black:12" @click="handleClose">
               <div class="i-system-uicons-cross" />
             </button>
@@ -172,7 +183,7 @@ function handleClose() {
         </div>
 
         <div class="flex items-center justify-between p-2 md:p-4" @click.self="toggleImageMetaVisible">
-          <!-- 修复：上一张和下一张的链接也使用 mktString -->
+          <!-- 上一张：使用 mktString 确保参数正确 -->
           <nuxt-link
             v-if="previewDatePrev" 
             :to="{ params: { date: previewDatePrev }, query: { mkt: mktString } }"
@@ -181,6 +192,7 @@ function handleClose() {
             <div class="i-system-uicons-arrow-left" />
           </nuxt-link>
 
+          <!-- 下一张：使用 mktString 确保参数正确 -->
           <nuxt-link
             v-if="previewDateNext" 
             :to="{ params: { date: previewDateNext }, query: { mkt: mktString } }"
@@ -208,7 +220,8 @@ function handleClose() {
                 <nuxt-link
                   v-if="previewImage?.copyrightlink" 
                   class="i-logos-bing mb--3px ml-1 inline-block"
-                  target="_blank" :to="previewImage?.copyrightlink" 
+                  target="_blank" 
+                  :to="previewImage?.copyrightlink" 
                   tabindex="-1" 
                   title="Search in Bing"
                 />
